@@ -85,8 +85,6 @@ public class BdBts {
             Statement st = conn.createStatement();
             st.executeUpdate(query00);
             st.executeUpdate(query01);
-//            st.executeUpdate("ALTER TABLE tasks ADD COLUMN task varchar (64) AFTER project");
-//            st.executeUpdate("CREATE TABLE tasks (project varchar (64), task varchar (64), topic varchar (64), type varchar (32), priority varchar (32), name  varchar (32), description varchar (256))");
             System.out.println("\nВ базе данных "+bdName+" cоздан новый рабочий файл "+table+".");
             st.close();    
         } catch (SQLException ex) {
@@ -144,8 +142,9 @@ public class BdBts {
         ResultSet rs = st.executeQuery(query01);
         System.out.println("\nЗадача "+task+" проекта "+project+" в файл "+tableName + " базы данных "+bdName+ " введена со следующими атрибутами:");
         System.out.println("Тема: "+topic+"; Тип: "+type+"; Приоритет: "+priority+"; Исполнитель: "+name+"; Описание: "+description);
-        while(rs.next())
-            System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
+        // проверка работоспособности программы
+        //while(rs.next())
+         //   System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
         st.close();
         } catch (SQLException ex){
@@ -196,8 +195,9 @@ public class BdBts {
         st.executeUpdate(query02);
         ResultSet rs = st.executeQuery(query01);
         System.out.println("\nЗадача "+task+" из проекта "+project+" файла "+tableName +" базы данных "+bdName+ " удалена.");
-        while(rs.next())
-            System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
+        // проверка работоспособности программы
+        //while(rs.next())
+        //    System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
         st.close();
         } catch (SQLException ex){
@@ -224,11 +224,8 @@ public class BdBts {
         String tableName = in.nextLine();
         System.out.println("Введите название удаляемого проекта");
         String project = in.nextLine();
-//        System.out.println("Введите название удаляемой задачи");
-//        String task = in.nextLine();
         String query00 = "USE "+bdName;
         String query01 = "SELECT * FROM "+tableName+" ORDER BY project";
-//        String query02 = "DELETE FROM tasks WHERE project = "+ "'" + project +"'" + " AND task = "+ "'" + task +"'";
         String query02 = "DELETE FROM "+tableName+" WHERE project = "+ "'" + project +"'";
         
         //подключение к MySQL (установка соединения)
@@ -247,8 +244,9 @@ public class BdBts {
         st.executeUpdate(query02);
         ResultSet rs = st.executeQuery(query01);
         System.out.println("\nПроект " +project+" из файла"+tableName +" базы данных "+bdName+ " удален со всеми задачами.");
-        while(rs.next())
-            System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
+        // проверка работоспособности программы
+       // while(rs.next())
+       //     System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
         st.close();
         } catch (SQLException ex){
@@ -426,7 +424,7 @@ public class BdBts {
         ResultSet rs = st.executeQuery(query02);
         System.out.println("\nБаза данных "+bdName+ " Рабочий файл "+tableName+". Список всех задач исполнителя "+name+":");
         while(rs.next())
-            System.out.println(rs.getString("task"));
+           System.out.println(rs.getString("task"));
 
         st.close();
         } catch (SQLException ex){
