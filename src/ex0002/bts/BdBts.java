@@ -23,7 +23,7 @@ public class BdBts {
     public static Statement st;
     
     
-    public void db(){
+    public void createDb(){
         try {
             //загружаем драйвер в память
             Class.forName(DRIVER_NAME);
@@ -31,6 +31,10 @@ public class BdBts {
             System.out.println("Cannot load driver for MySQL!");
             return;
         }
+        Scanner in = new Scanner(System.in);
+        System.out.println("Введите название новой базы данных");
+        String bdName = in.nextLine();
+        String query00 = "CREATE DATABASE "+bdName;
         //подключение к MySQL (установка соединения)
         Connection conn = null;
         try {
@@ -43,15 +47,53 @@ public class BdBts {
        
         try {
             Statement st = conn.createStatement();
-//            st.executeUpdate("CREATE DATABASE dbBTS");
-            st.executeUpdate("USE dbBTS");
-//            st.executeUpdate("ALTER TABLE tasks ADD COLUMN task varchar (64) AFTER project");
-//            st.executeUpdate("CREATE TABLE tasks (project varchar (64), task varchar (64), topic varchar (64), type varchar (32), priority varchar (32), name  varchar (32), description varchar (256))");
-            } catch (SQLException ex) {
+            st.executeUpdate(query00);
+            System.out.println("\nСоздана новая база данных "+bdName+".");
+            st.close();    
+        }catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
     
         }
+
+    public void createTable(){
+        try {
+            //загружаем драйвер в память
+            Class.forName(DRIVER_NAME);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Cannot load driver for MySQL!");
+            return;
+        }
+        Scanner in = new Scanner(System.in);
+        System.out.println("Введите название нужной базы данных");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нового рабочего файла");
+        String table = in.nextLine();
+        String query00 = "USE "+bdName;
+        String query01 = "CREATE TABLE "+table+" (project varchar (64), task varchar (64), topic varchar (64), type varchar (32), priority varchar (32), name  varchar (32), description varchar (256))";
+        //подключение к MySQL (установка соединения)
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(CONN_STRING);
+        } catch (SQLException ex) {
+            System.out.println("Cannot open connection to DB!" +
+                    ex.getMessage());
+            return;
+        }
+       
+        try {
+            Statement st = conn.createStatement();
+            st.executeUpdate(query00);
+            st.executeUpdate(query01);
+//            st.executeUpdate("ALTER TABLE tasks ADD COLUMN task varchar (64) AFTER project");
+//            st.executeUpdate("CREATE TABLE tasks (project varchar (64), task varchar (64), topic varchar (64), type varchar (32), priority varchar (32), name  varchar (32), description varchar (256))");
+            System.out.println("\nВ базе данных "+bdName+" cоздан новый рабочий файл "+table+".");
+            st.close();    
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+    
+        }    
     
     public void createTask(){
         try {
@@ -63,6 +105,10 @@ public class BdBts {
         }
         
         Scanner in = new Scanner(System.in);
+        System.out.println("Введите название базы данных, c которой Вы хотите работать.");
+        String bdName = in.nextLine(); 
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
         System.out.println("Введите название проекта");
         String project = in.nextLine();
         System.out.println("Введите название задачи");
@@ -73,13 +119,13 @@ public class BdBts {
         String type = in.nextLine();
         System.out.println("Введите приоритет");
         String  priority= in.nextLine();
-        System.out.println("Введите имя испонителя");
+        System.out.println("Введите имя исполнителя");
         String name = in.nextLine();
         System.out.println("Введите описание");
         String  description= in.nextLine();
-        String query01 = "SELECT * FROM tasks ORDER BY project";
-        String query02 = "INSERT INTO tasks (project, task, topic, type, priority, name, description) VALUES ('" + project + "', '" + task + "', '"+ topic + "', '" + type + "', '"+ priority + "', '" + name + "', '" + description +"'"+")";
-
+        String query00 = "USE "+bdName;
+        String query01 = "SELECT * FROM "+tableName+" ORDER BY project";
+        String query02 = "INSERT INTO "+tableName+" (project, task, topic, type, priority, name, description) VALUES ('" + project + "', '" + task + "', '"+ topic + "', '" + type + "', '"+ priority + "', '" + name + "', '" + description +"'"+")";     
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -93,9 +139,11 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeUpdate("USE dbBTS");        
+        st.executeUpdate(query00);        
         st.executeUpdate(query02);
         ResultSet rs = st.executeQuery(query01);
+        System.out.println("\nЗадача "+task+" проекта "+project+" в файл "+tableName + " базы данных "+bdName+ " введена со следующими атрибутами:");
+        System.out.println("Тема: "+topic+"; Тип: "+type+"; Приоритет: "+priority+"; Исполнитель: "+name+"; Описание: "+description);
         while(rs.next())
             System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
@@ -118,13 +166,19 @@ public class BdBts {
         }
         
         Scanner in = new Scanner(System.in);
-        System.out.println("\nВведите название проекта, в котором нужно удалить задачу");
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();  
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
+        System.out.println("Введите название проекта, в котором нужно удалить задачу");
         String project = in.nextLine();
         System.out.println("Введите название удаляемой задачи");
-        String task = in.nextLine();        
-        String query01 = "SELECT * FROM tasks ORDER BY project";
-        String query02 = "DELETE FROM tasks WHERE project = "+ "'" + project +"'" + " AND task = "+ "'" + task +"'";
-//        String query02 = "DELETE FROM tasks WHERE project = "+ "'" + project +"'";
+        String task = in.nextLine();  
+        String query00 = "USE "+bdName;
+        String query01 = "SELECT * FROM "+tableName+" ORDER BY project";
+        String query02 = "DELETE FROM "+tableName+" WHERE project = "+ "'" + project +"'" + " AND task = "+ "'" + task +"'";
+
+
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -138,9 +192,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeUpdate("USE dbBTS");        
+        st.executeUpdate(query00);        
         st.executeUpdate(query02);
         ResultSet rs = st.executeQuery(query01);
+        System.out.println("\nЗадача "+task+" из проекта "+project+" файла "+tableName +" базы данных "+bdName+ " удалена.");
         while(rs.next())
             System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
@@ -163,13 +218,18 @@ public class BdBts {
         }
         
         Scanner in = new Scanner(System.in);
-        System.out.println("\nВведите удаляемого проекта");
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
+        System.out.println("Введите название удаляемого проекта");
         String project = in.nextLine();
 //        System.out.println("Введите название удаляемой задачи");
-//        String task = in.nextLine();        
-        String query01 = "SELECT * FROM tasks ORDER BY project";
+//        String task = in.nextLine();
+        String query00 = "USE "+bdName;
+        String query01 = "SELECT * FROM "+tableName+" ORDER BY project";
 //        String query02 = "DELETE FROM tasks WHERE project = "+ "'" + project +"'" + " AND task = "+ "'" + task +"'";
-        String query02 = "DELETE FROM tasks WHERE project = "+ "'" + project +"'";
+        String query02 = "DELETE FROM "+tableName+" WHERE project = "+ "'" + project +"'";
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -183,9 +243,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeUpdate("USE dbBTS");        
+        st.executeUpdate(query00);        
         st.executeUpdate(query02);
         ResultSet rs = st.executeQuery(query01);
+        System.out.println("\nПроект " +project+" из файла"+tableName +" базы данных "+bdName+ " удален со всеми задачами.");
         while(rs.next())
             System.out.println(rs.getString("project")+" "+ rs.getString("task")+" "+ rs.getString("topic")+" "+ rs.getString("type")+" "+ rs.getString("priority")+" "+ rs.getString("name")+" "+ rs.getString("description"));
 
@@ -204,10 +265,14 @@ public class BdBts {
             System.out.println("Cannot load driver for MySQL!");
             return;
         }
-        
-     
+        Scanner in = new Scanner(System.in);
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();        
+        String query00 = "USE "+bdName;
     //    String query01 = "SELECT * FROM tasks ORDER BY project";
-        String query02 = "SELECT * FROM tasks";
+        String query02 = "SELECT * FROM "+tableName;
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -221,9 +286,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeQuery("USE dbBTS");        
+        st.executeQuery(query00);        
         st.executeQuery(query02);
         ResultSet rs = st.executeQuery(query02);
+        System.out.println("\nИмена пользователей файла "+tableName+" базы данных "+bdName+ ":");
         while(rs.next())
             System.out.println(rs.getString("name"));
 
@@ -243,9 +309,14 @@ public class BdBts {
             return;
         }
         
-     
+        Scanner in = new Scanner(System.in);
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
+        String query00 = "USE "+bdName;        
     //    String query01 = "SELECT * FROM tasks ORDER BY project";
-        String query02 = "SELECT * FROM tasks";
+        String query02 = "SELECT * FROM "+tableName;
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -259,9 +330,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeQuery("USE dbBTS");        
+        st.executeQuery(query00);        
         st.executeQuery(query02);
         ResultSet rs = st.executeQuery(query02);
+        System.out.println("\nСписок всех проектов файла "+tableName+" из базы данных "+bdName+ ":");
         while(rs.next())
             System.out.println(rs.getString("project"));
 
@@ -282,11 +354,15 @@ public class BdBts {
             return;
         }
         Scanner in = new Scanner(System.in);
-        System.out.println("\nВведите название проекта");
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
+        System.out.println("Введите название проекта");
         String project = in.nextLine();
-     
+        String query00 = "USE "+bdName;      
     //    String query01 = "SELECT * FROM tasks ORDER BY project";
-        String query02 = "SELECT * FROM tasks WHERE project='" + project+ "'";
+        String query02 = "SELECT * FROM "+tableName+" WHERE project='" + project+ "'";
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -300,10 +376,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeQuery("USE dbBTS");        
+        st.executeQuery(query00);        
         st.executeQuery(query02);
         ResultSet rs = st.executeQuery(query02);
-         System.out.println("\nСписок всех задач в проекте "+project);
+        System.out.println("\nСписок всех задач в проекте "+project+" из Файла "+tableName+" базы данных "+bdName+ ":");
         while(rs.next())
             System.out.println(rs.getString("task"));
 
@@ -324,10 +400,14 @@ public class BdBts {
             return;
         }
         Scanner in = new Scanner(System.in);
-        System.out.println("\nВведите имя исполнителя");
+        System.out.println("Введите название базы данных, в которой Вы хотите работать.");
+        String bdName = in.nextLine();
+        System.out.println("Введите название нужного рабочего файла.");
+        String tableName = in.nextLine();
+        System.out.println("Введите имя исполнителя");
         String name = in.nextLine();
-     
-        String query02 = "SELECT * FROM tasks WHERE name='" + name+ "'";
+        String query00 = "USE "+bdName;      
+        String query02 = "SELECT * FROM "+tableName+" WHERE name='" + name+ "'";
         
         //подключение к MySQL (установка соединения)
         Connection conn = null;
@@ -341,10 +421,10 @@ public class BdBts {
        
         try{
         st=conn.createStatement();
-        st.executeQuery("USE dbBTS");        
+        st.executeQuery(query00);        
         st.executeQuery(query02);
         ResultSet rs = st.executeQuery(query02);
-         System.out.println("\nСписок всех задач исполнителя "+name);
+        System.out.println("\nБаза данных "+bdName+ " Рабочий файл "+tableName+". Список всех задач исполнителя "+name+":");
         while(rs.next())
             System.out.println(rs.getString("task"));
 
@@ -354,6 +434,6 @@ public class BdBts {
             }        
         
     
-        }        
+        }
         
 }
